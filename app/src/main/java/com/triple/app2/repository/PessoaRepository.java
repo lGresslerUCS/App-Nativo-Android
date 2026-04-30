@@ -13,13 +13,35 @@ import java.util.List;
 
 public class PessoaRepository {
 
-    private DatabaseHelper dbHelper;
+    private final DatabaseHelper dbHelper;
 
     public PessoaRepository(Context context) {
-        dbHelper = new DatabaseHelper(context);
+        dbHelper = new DatabaseHelper((android.app.Activity) context);
+    }
+
+    public void abrirBanco() {
+        dbHelper.selecionarBanco();
+    }
+
+    public void onBancoPronto(int requestCode, int resultCode, android.content.Intent data) {
+        dbHelper.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private SQLiteDatabase db() {
+        return dbHelper.getDatabase();
+    }
+
+    // 🔥 GARANTE BANCO ABERTO
+    private boolean garantirBancoAberto() {
+        if (dbHelper.getDatabase() == null || !dbHelper.isBancoAberto()) {
+            dbHelper.abrirBanco();
+        }
+        return dbHelper.getDatabase() != null;
     }
 
     public void adicionar(Pessoa pessoa) {
+
+        if (!garantirBancoAberto()) return;
 
         SQLiteDatabase db = dbHelper.getDatabase();
 
@@ -35,21 +57,20 @@ public class PessoaRepository {
 
         List<Pessoa> lista = new ArrayList<>();
 
+        if (!garantirBancoAberto()) return lista;
+
         SQLiteDatabase db = dbHelper.getDatabase();
 
-        Cursor cursor = db.rawQuery("SELECT * FROM pessoa", null);
+        Cursor cursor = db.rawQuery("SELECT * FROM pessoas", null);
 
-        if(cursor.moveToFirst()){
-            do{
-                Pessoa p = new Pessoa(
+        if (cursor.moveToFirst()) {
+            do {
+                lista.add(new Pessoa(
                         cursor.getString(0),
                         cursor.getString(1),
                         cursor.getInt(2)
-                );
-
-                lista.add(p);
-
-            }while(cursor.moveToNext());
+                ));
+            } while (cursor.moveToNext());
         }
 
         cursor.close();
@@ -57,10 +78,12 @@ public class PessoaRepository {
         return lista;
     }
 
-    public void remover(String id){
+    public void remover(String id) {
+
+        if (!garantirBancoAberto()) return;
 
         SQLiteDatabase db = dbHelper.getDatabase();
 
-        db.delete("pessoa","id=?", new String[]{id});
+        db.delete("pessoas", "id=?", new String[]{id});
     }
 }

@@ -31,10 +31,12 @@ public class PessoaFormActivity extends AppCompatActivity {
 
         repository = new PessoaRepository(this);
 
+        repository.abrirBanco();
+
         salvar.setOnClickListener(v -> {
 
             Pessoa pessoa = new Pessoa(
-                    gerarId(),
+                    UUID.randomUUID().toString(),
                     nome.getText().toString(),
                     Integer.parseInt(idade.getText().toString())
             );
@@ -43,9 +45,5 @@ public class PessoaFormActivity extends AppCompatActivity {
 
             finish();
         });
-    }
-
-    private String gerarId(){
-        return UUID.randomUUID().toString();
     }
 }
