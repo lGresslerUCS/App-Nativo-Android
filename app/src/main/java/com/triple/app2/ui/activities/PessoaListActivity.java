@@ -21,6 +21,7 @@ public class PessoaListActivity extends AppCompatActivity {
 
     ListView listView;
     Button btnAdicionar;
+    Button btnRefresh;
     PessoaRepository repository;
 
     private long ultimoTamanho = 0;
@@ -34,6 +35,7 @@ public class PessoaListActivity extends AppCompatActivity {
 
         listView = findViewById(R.id.lista);
         btnAdicionar = findViewById(R.id.btnAdicionar);
+        btnRefresh = findViewById(R.id.btnRefresh);
 
         repository = new PessoaRepository(this);
 
@@ -41,6 +43,11 @@ public class PessoaListActivity extends AppCompatActivity {
 
         btnAdicionar.setOnClickListener(v -> {
             startActivity(new Intent(this, PessoaFormActivity.class));
+        });
+
+        btnRefresh.setOnClickListener(v -> {
+            repository.recarregarBanco();
+            carregarPessoas();
         });
 
         iniciarMonitorBanco();
